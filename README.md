@@ -1,9 +1,16 @@
 # Effective Software design: Automated Sensor Updates
 
+## Introduction
 The first excercise in the Effective Software Design Course. This course is focussing on problem analysis and then designing
 an appropriate solution. Therefor, you will only find the general synopsis of the problem. The point is to start thinking 
 for yourself, to start asking the right questions. In case you want to code this exercise, please refer to the full analysis
 of this project in the exercise introduction of the course. 
+
+This project is implemented using AI. I did that in different phases. You can find a full transcript of how I did that, with
+prompts, context etc in the course. 
+
+This project has multiple branches prefixed with `phase`. This is on purpose, you can see the code grow for each phase. Feel
+free to check out any branch and have a look. 
 
 ## Context of the project
 
