@@ -17,6 +17,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class SensorValidationProcessTest {
 
+    private static final String CSV_CONTENT = "id,type\n323445678,TS50X";
+    private static final String VALID_CONFIGURATION = "config123.cfg";
+    private static final String INVALID_CONFIGURATION = "invalidconfig.cfg";
+    private static final String VALID_FIRMWARE_VERSION = "60.1.12Rev1";
+    private static final String INVALID_FIRMWARE_VERSION = "49.1.0Rev3";
+
     @Mock
     private SensorInformationClient sensorInformationClient;
 
@@ -34,170 +40,175 @@ public class SensorValidationProcessTest {
     }
 
     @Test
-    void validateSensors_shouldReturnReadyStatus_whenSensorHasValidFirmwareAndConfiguration() {
+    void shouldReturnReadyStatus_whenSensorHasValidFirmwareAndConfiguration() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
 
-        Sensor sensor = new Sensor("323445678", "60.1.12Rev1", "config123.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        var sensor = aSensorWith("60.1.12Rev1", VALID_CONFIGURATION);
+        when(sensorInformationClient.getSensorInformation(sensor.getId()))
+                .thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
         assertThat(result.get(0).getStatus()).isEqualTo("ready");
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
         verifyNoInteractions(taskClient);
     }
 
     @Test
-    void validateSensors_shouldReturnUpdatingFirmwareStatus_whenSensorHasOutdatedFirmware() {
+    void shouldReturnUpdatingFirmwareStatus_whenSensorHasOutdatedFirmware() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
+        Sensor sensor = aSensorWith(INVALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
 
-        Sensor sensor = new Sensor("323445678", "50.1.12Rev1", "config123.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        when(sensorInformationClient.getSensorInformation(sensor.getId()))
+                .thenReturn(sensor);
 
-        Sensor updatedSensor = new Sensor("323445678", "50.1.12Rev1", "config123.cfg", "updating_firmware");
-        when(taskClient.scheduleFirmwareUpdate("323445678")).thenReturn(updatedSensor);
+        sensor.setStatus("updating_firmware"); // I don't really like this... it is a bit bad practice
+        when(taskClient.scheduleFirmwareUpdate(sensor.getId()))
+                .thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
-        assertThat(result.get(0).getStatus()).isEqualTo("updating_firmware");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
+        assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
-        verify(taskClient).scheduleFirmwareUpdate("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
+        verify(taskClient).scheduleFirmwareUpdate(sensor.getId());
     }
 
     @Test
     void validateSensors_shouldReturnConfigurationUpdateStatus_whenSensorHasInvalidConfiguration() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
 
-        Sensor sensor = new Sensor("323445678", "60.1.12Rev1", "config_invalid.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        var sensor = aSensorWith(VALID_FIRMWARE_VERSION, INVALID_CONFIGURATION);
+        when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
-        Sensor updatedSensor = new Sensor("323445678", "60.1.12Rev1", "config_invalid.cfg", "configuration_update");
-        when(taskClient.scheduleConfigurationUpdate("323445678")).thenReturn(updatedSensor);
+        sensor.setStatus("configuration_update"); //I don't really like this... it is a bit bad practice
+        when(taskClient.scheduleConfigurationUpdate(sensor.getId())).thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
-        assertThat(result.get(0).getStatus()).isEqualTo("configuration_update");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
+        assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
-        verify(taskClient).scheduleConfigurationUpdate("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
+        verify(taskClient).scheduleConfigurationUpdate(sensor.getId());
     }
 
     @Test
     void validateSensors_shouldPrioritizeFirmwareUpdate_whenBothFirmwareAndConfigurationNeedUpdates() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
 
-        Sensor sensor = new Sensor("323445678", "50.1.12Rev1", "config_invalid.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        var sensor = aSensorWith(INVALID_FIRMWARE_VERSION, INVALID_CONFIGURATION);
+        when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
-        Sensor updatedSensor = new Sensor("323445678", "50.1.12Rev1", "config_invalid.cfg", "updating_firmware");
-        when(taskClient.scheduleFirmwareUpdate("323445678")).thenReturn(updatedSensor);
+        sensor.setStatus("updating_firmware"); // again, don't love this, we might have to do something about it
+        when(taskClient.scheduleFirmwareUpdate(sensor.getId())).thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
-        assertThat(result.get(0).getStatus()).isEqualTo("updating_firmware");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
+        assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
-        verify(taskClient).scheduleFirmwareUpdate("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
+        verify(taskClient).scheduleFirmwareUpdate(sensor.getId());
         verify(taskClient, never()).scheduleConfigurationUpdate(anyString());
     }
 
     @Test
     void validateSensors_shouldHandleMissingFirmware() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
 
-        Sensor sensor = new Sensor("323445678", null, "config123.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        var sensor = aSensorWith(null, VALID_CONFIGURATION);
+        when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
         assertThat(result.get(0).getStatus()).isEqualTo("firmware_unknown");
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
         verifyNoInteractions(taskClient);
     }
 
     @Test
     void validateSensors_shouldHandleMissingConfiguration() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
 
-        Sensor sensor = new Sensor("323445678", "60.1.12Rev1", null, null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor);
+        var sensor = aSensorWith(VALID_FIRMWARE_VERSION, null);
+        when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
-        Sensor updatedSensor = new Sensor("323445678", "60.1.12Rev1", null, "configuration_update");
-        when(taskClient.scheduleConfigurationUpdate("323445678")).thenReturn(updatedSensor);
+        sensor.setStatus("configuration_update");
+        when(taskClient.scheduleConfigurationUpdate(sensor.getId())).thenReturn(sensor);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
+        assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
         assertThat(result.get(0).getStatus()).isEqualTo("configuration_update");
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
-        verify(taskClient).scheduleConfigurationUpdate("323445678");
+        verify(sensorInformationClient).getSensorInformation(sensor.getId());
+        verify(taskClient).scheduleConfigurationUpdate(sensor.getId());
     }
 
     @Test
     void validateSensors_shouldProcessMultipleSensors() {
         // Arrange
-        String csvContent = "id,type\n323445678,TS50X\n323445680,TS50X";
-        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        var multisensorContent = "id,type\n323445678,TS50X\n323449876,TS50X";
+        InputStream inputStream = new ByteArrayInputStream(multisensorContent.getBytes());
 
-        Sensor sensor1 = new Sensor("323445678", "60.1.12Rev1", "config123.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445678")).thenReturn(sensor1);
+        var sensor1 = aSensorWith(VALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
+        when(sensorInformationClient.getSensorInformation(sensor1.getId())).thenReturn(sensor1);
 
-        Sensor sensor2 = new Sensor("323445680", "50.1.12Rev1", "config_invalid.cfg", null);
-        when(sensorInformationClient.getSensorInformation("323445680")).thenReturn(sensor2);
+        var sensor2 = aSensorWith(INVALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
+        sensor2.setId("323449876");
+        when(sensorInformationClient.getSensorInformation(sensor2.getId())).thenReturn(sensor2);
 
-        Sensor updatedSensor = new Sensor("323445680", "50.1.12Rev1", "config_invalid.cfg", "updating_firmware");
-        when(taskClient.scheduleFirmwareUpdate("323445680")).thenReturn(updatedSensor);
+        sensor2.setStatus("updating_firmware");
+        when(taskClient.scheduleFirmwareUpdate(sensor2.getId())).thenReturn(sensor2);
 
         // Act
-        List<Sensor> result = sensorValidationProcess.validateSensors(inputStream);
+        var result = sensorValidationProcess.validateSensors(inputStream);
 
         // Assert
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getId()).isEqualTo("323445678");
+        assertThat(result.get(0).getId()).isEqualTo(sensor1.getId());
         assertThat(result.get(0).getStatus()).isEqualTo("ready");
-        assertThat(result.get(1).getId()).isEqualTo("323445680");
-        assertThat(result.get(1).getStatus()).isEqualTo("updating_firmware");
+        assertThat(result.get(1).getId()).isEqualTo(sensor2);
+        assertThat(result.get(1).getStatus()).isEqualTo(sensor2.getStatus());
 
-        verify(sensorInformationClient).getSensorInformation("323445678");
-        verify(sensorInformationClient).getSensorInformation("323445680");
+        verify(sensorInformationClient).getSensorInformation(sensor1.getId());
+        verify(sensorInformationClient).getSensorInformation(sensor2.getId());
+    }
+
+    private Sensor aSensorWith(String firmwareVersion, String configurationVersion) {
+        return new Sensor("323445678",
+                "60.1.12Rev1",
+                "config123.cfg",
+                null);
     }
 }
