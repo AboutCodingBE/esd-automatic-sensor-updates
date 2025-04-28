@@ -64,7 +64,7 @@ public class SensorValidationProcessTest {
     void shouldReturnUpdatingFirmwareStatus_whenSensorHasOutdatedFirmware() {
         // Arrange
         InputStream inputStream = new ByteArrayInputStream(CSV_CONTENT.getBytes());
-        Sensor sensor = aSensorWith(INVALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
+        var sensor = aSensorWith(INVALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
 
         when(sensorInformationClient.getSensorInformation(sensor.getId()))
                 .thenReturn(sensor);
@@ -198,7 +198,7 @@ public class SensorValidationProcessTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getId()).isEqualTo(sensor1.getId());
         assertThat(result.get(0).getStatus()).isEqualTo("ready");
-        assertThat(result.get(1).getId()).isEqualTo(sensor2);
+        assertThat(result.get(1).getId()).isEqualTo(sensor2.getId());
         assertThat(result.get(1).getStatus()).isEqualTo(sensor2.getStatus());
 
         verify(sensorInformationClient).getSensorInformation(sensor1.getId());
@@ -207,8 +207,8 @@ public class SensorValidationProcessTest {
 
     private Sensor aSensorWith(String firmwareVersion, String configurationVersion) {
         return new Sensor("323445678",
-                "60.1.12Rev1",
-                "config123.cfg",
+                firmwareVersion,
+                configurationVersion,
                 null);
     }
 }
