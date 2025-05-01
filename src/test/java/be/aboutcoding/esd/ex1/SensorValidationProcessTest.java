@@ -70,7 +70,7 @@ public class SensorValidationProcessTest {
                 .thenReturn(sensor);
 
         sensor.setStatus("updating_firmware"); // I don't really like this... it is a bit bad practice
-        when(taskClient.scheduleFirmwareUpdate(sensor.getId()))
+        when(taskClient.scheduleFirmwareUpdate(sensor))
                 .thenReturn(sensor);
 
         // Act
@@ -82,7 +82,7 @@ public class SensorValidationProcessTest {
         assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
         verify(sensorInformationClient).getSensorInformation(sensor.getId());
-        verify(taskClient).scheduleFirmwareUpdate(sensor.getId());
+        verify(taskClient).scheduleFirmwareUpdate(sensor);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class SensorValidationProcessTest {
         when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
         sensor.setStatus("configuration_update"); //I don't really like this... it is a bit bad practice
-        when(taskClient.scheduleConfigurationUpdate(sensor.getId())).thenReturn(sensor);
+        when(taskClient.scheduleConfigurationUpdate(sensor)).thenReturn(sensor);
 
         // Act
         var result = sensorValidationProcess.validateSensors(inputStream);
@@ -105,7 +105,7 @@ public class SensorValidationProcessTest {
         assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
         verify(sensorInformationClient).getSensorInformation(sensor.getId());
-        verify(taskClient).scheduleConfigurationUpdate(sensor.getId());
+        verify(taskClient).scheduleConfigurationUpdate(sensor);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class SensorValidationProcessTest {
         when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
         sensor.setStatus("updating_firmware"); // again, don't love this, we might have to do something about it
-        when(taskClient.scheduleFirmwareUpdate(sensor.getId())).thenReturn(sensor);
+        when(taskClient.scheduleFirmwareUpdate(sensor)).thenReturn(sensor);
 
         // Act
         var result = sensorValidationProcess.validateSensors(inputStream);
@@ -128,8 +128,8 @@ public class SensorValidationProcessTest {
         assertThat(result.get(0).getStatus()).isEqualTo(sensor.getStatus());
 
         verify(sensorInformationClient).getSensorInformation(sensor.getId());
-        verify(taskClient).scheduleFirmwareUpdate(sensor.getId());
-        verify(taskClient, never()).scheduleConfigurationUpdate(anyString());
+        verify(taskClient).scheduleFirmwareUpdate(sensor);
+        verify(taskClient, never()).scheduleConfigurationUpdate(any());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class SensorValidationProcessTest {
         when(sensorInformationClient.getSensorInformation(sensor.getId())).thenReturn(sensor);
 
         sensor.setStatus("configuration_update");
-        when(taskClient.scheduleConfigurationUpdate(sensor.getId())).thenReturn(sensor);
+        when(taskClient.scheduleConfigurationUpdate(sensor)).thenReturn(sensor);
 
         // Act
         var result = sensorValidationProcess.validateSensors(inputStream);
@@ -172,7 +172,7 @@ public class SensorValidationProcessTest {
         assertThat(result.get(0).getStatus()).isEqualTo("configuration_update");
 
         verify(sensorInformationClient).getSensorInformation(sensor.getId());
-        verify(taskClient).scheduleConfigurationUpdate(sensor.getId());
+        verify(taskClient).scheduleConfigurationUpdate(sensor);
     }
 
     @Test
@@ -189,7 +189,7 @@ public class SensorValidationProcessTest {
         when(sensorInformationClient.getSensorInformation(sensor2.getId())).thenReturn(sensor2);
 
         sensor2.setStatus("updating_firmware");
-        when(taskClient.scheduleFirmwareUpdate(sensor2.getId())).thenReturn(sensor2);
+        when(taskClient.scheduleFirmwareUpdate(sensor2)).thenReturn(sensor2);
 
         // Act
         var result = sensorValidationProcess.validateSensors(inputStream);

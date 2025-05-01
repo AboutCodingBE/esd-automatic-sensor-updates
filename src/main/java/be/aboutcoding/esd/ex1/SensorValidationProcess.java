@@ -43,17 +43,17 @@ public class SensorValidationProcess {
 
         // Check if firmware needs to be updated
         if (!firmwareVerifier.isUpToDate(sensor.getFirmwareVersion())) {
-            return taskClient.scheduleFirmwareUpdate(sensor.getId());
+            return taskClient.scheduleFirmwareUpdate(sensor);
         }
 
         // Check if configuration is missing
         if (sensor.getConfiguration() == null) {
-            return taskClient.scheduleConfigurationUpdate(sensor.getId());
+            return taskClient.scheduleConfigurationUpdate(sensor);
         }
 
         // Check if configuration needs to be updated
         if (!configurationVerifier.isValid(sensor.getConfiguration())) {
-            return taskClient.scheduleConfigurationUpdate(sensor.getId());
+            return taskClient.scheduleConfigurationUpdate(sensor);
         }
 
         // If everything is valid, mark as ready

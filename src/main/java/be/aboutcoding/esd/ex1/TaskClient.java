@@ -2,176 +2,148 @@ package be.aboutcoding.esd.ex1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Client for scheduling firmware and configuration update tasks.
+ * Client for scheduling firmware and configuration update tasks via the 3rd party API.
  */
 @Component
 public class TaskClient {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskClient.class);
-    private static final String FIRMWARE_UPDATE_STATUS = "updating_firmware";
-    private static final String CONFIGURATION_UPDATE_STATUS = "configuration_update";
+    private static final String API_URL = "www.mysensor.io/api/tasks";
+    private static final String AUTH_HEADER = "x-auth-id";
+    private static final String AUTH_VALUE = "CL019567d9-6e3b-738b-9b6d-32496110bd35==";
+
+    // Task types
+    private static final String UPDATE_FIRMWARE_TYPE = "update_firmware";
+    private static final String UPDATE_CONFIGURATION_TYPE = "update_configuration";
+
+    // Status values
+    private static final String UPDATING_FIRMWARE_STATUS = "updating_firmware";
+    private static final String UPDATING_CONFIGURATION_STATUS = "updating_configuration";
 
     private final RestTemplate restTemplate;
-    private final String taskApiUrl;
-    private final SensorInformationClient sensorInformationClient;
 
     /**
      * Constructor for TaskClient.
      *
      * @param restTemplate The RestTemplate for making HTTP requests
-     * @param taskApiUrl The base URL of the task API
-     * @param sensorInformationClient Client for retrieving sensor information
      */
-    public TaskClient(
-            RestTemplate restTemplate,
-            @Value("${task.api.url}") String taskApiUrl,
-            SensorInformationClient sensorInformationClient) {
+    public TaskClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.taskApiUrl = taskApiUrl;
-        this.sensorInformationClient = sensorInformationClient;
     }
 
     /**
      * Schedules a firmware update task for a sensor.
      *
-     * @param sensorId The ID of the sensor that needs a firmware update
+     * @param sensor The sensor that needs a firmware update
      * @return The updated Sensor object with the new status
      */
-    public Sensor scheduleFirmwareUpdate(String sensorId) {
-        logger.info("Scheduling firmware update task for sensor ID: {}", sensorId);
+    public Sensor scheduleFirmwareUpdate(Sensor sensor) {
+        logger.info("Scheduling firmware update task for sensor ID: {}", sensor.getId());
 
         try {
-            String url = taskApiUrl + "/tasks/firmware-update";
-
             // Prepare request body
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("sensorId", sensorId);
-            requestBody.put("priority", "high");
-            requestBody.put("taskType", "firmware_update");
+            requestBody.put("sensor_serial", Long.parseLong(sensor.getId()));
+            requestBody.put("type", UPDATE_FIRMWARE_TYPE);
+            // Note: file_id is optional for firmware updates as the latest will be installed
 
-            // Prepare headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            // Make the API call
+            String taskId = sendTaskRequest(requestBody);
+            logger.info("Successfully scheduled firmware update task with ID: {} for sensor ID: {}", taskId, sensor.getId());
 
-            // Create request entity
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            // Create and return updated sensor with new status
+            Sensor updatedSensor = new Sensor(
+                    sensor.getId(),
+                    sensor.getFirmwareVersion(),
+                    sensor.getConfiguration(),
+                    UPDATING_FIRMWARE_STATUS
+            );
+            return updatedSensor;
 
-            // Make POST request
-            ResponseEntity<TaskResponse> response = restTemplate.postForEntity(url, request, TaskResponse.class);
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                logger.info("Successfully scheduled firmware update task for sensor ID: {}", sensorId);
-                return updateSensorWithStatus(sensorId, FIRMWARE_UPDATE_STATUS);
-            } else {
-                logger.warn("Failed to schedule firmware update task for sensor ID: {}", sensorId);
-                return getSensorWithOriginalStatus(sensorId);
-            }
         } catch (Exception e) {
-            logger.error("Error scheduling firmware update task for sensor ID {}: {}", sensorId, e.getMessage());
-            return getSensorWithOriginalStatus(sensorId);
+            logger.error("Error scheduling firmware update task for sensor ID {}: {}", sensor.getId(), e.getMessage());
+            throw new RuntimeException("Failed to schedule firmware update task", e);
         }
     }
 
     /**
      * Schedules a configuration update task for a sensor.
      *
-     * @param sensorId The ID of the sensor that needs a configuration update
+     * @param sensor The sensor that needs a configuration update
      * @return The updated Sensor object with the new status
      */
-    public Sensor scheduleConfigurationUpdate(String sensorId) {
-        logger.info("Scheduling configuration update task for sensor ID: {}", sensorId);
+    public Sensor scheduleConfigurationUpdate(Sensor sensor) {
+        logger.info("Scheduling configuration update task for sensor ID: {}", sensor.getId());
 
         try {
-            String url = taskApiUrl + "/tasks/configuration-update";
-
             // Prepare request body
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("sensorId", sensorId);
-            requestBody.put("priority", "medium");
-            requestBody.put("taskType", "configuration_update");
-            requestBody.put("configFile", "config123.cfg");
+            requestBody.put("sensor_serial", Long.parseLong(sensor.getId()));
+            requestBody.put("type", UPDATE_CONFIGURATION_TYPE);
+            requestBody.put("file_id", "a3e4aed2-b091-41a6-8265-2185040e2c32"); // Example file ID for config123.cfg
 
-            // Prepare headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            // Make the API call
+            String taskId = sendTaskRequest(requestBody);
+            logger.info("Successfully scheduled configuration update task with ID: {} for sensor ID: {}", taskId, sensor.getId());
 
-            // Create request entity
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+            // Create and return updated sensor with new status
+            Sensor updatedSensor = new Sensor(
+                    sensor.getId(),
+                    sensor.getFirmwareVersion(),
+                    sensor.getConfiguration(),
+                    UPDATING_CONFIGURATION_STATUS
+            );
+            return updatedSensor;
 
-            // Make POST request
-            ResponseEntity<TaskResponse> response = restTemplate.postForEntity(url, request, TaskResponse.class);
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                logger.info("Successfully scheduled configuration update task for sensor ID: {}", sensorId);
-                return updateSensorWithStatus(sensorId, CONFIGURATION_UPDATE_STATUS);
-            } else {
-                logger.warn("Failed to schedule configuration update task for sensor ID: {}", sensorId);
-                return getSensorWithOriginalStatus(sensorId);
-            }
         } catch (Exception e) {
-            logger.error("Error scheduling configuration update task for sensor ID {}: {}", sensorId, e.getMessage());
-            return getSensorWithOriginalStatus(sensorId);
+            logger.error("Error scheduling configuration update task for sensor ID {}: {}", sensor.getId(), e.getMessage());
+            throw new RuntimeException("Failed to schedule configuration update task", e);
         }
     }
 
     /**
-     * Updates a sensor with a new status.
+     * Sends a task request to the API.
      *
-     * @param sensorId The ID of the sensor
-     * @param status The new status to set
-     * @return The updated Sensor object
+     * @param requestBody The request body to send
+     * @return The task ID from the response
      */
-    private Sensor updateSensorWithStatus(String sensorId, String status) {
-        Sensor sensor = sensorInformationClient.getSensorInformation(sensorId);
-        sensor.setStatus(status);
-        return sensor;
-    }
+    private String sendTaskRequest(Map<String, Object> requestBody) {
+        // Prepare headers with authentication
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AUTH_HEADER, AUTH_VALUE);
 
-    /**
-     * Gets a sensor with its original status.
-     * Used when task scheduling fails.
-     *
-     * @param sensorId The ID of the sensor
-     * @return The original Sensor object
-     */
-    private Sensor getSensorWithOriginalStatus(String sensorId) {
-        return sensorInformationClient.getSensorInformation(sensorId);
-    }
+        // Create request entity with body and headers
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-    /**
-     * Inner class representing the structure of the task API response.
-     */
-    private static class TaskResponse {
-        private String taskId;
-        private String status;
+        // Send PUT request
+        ResponseEntity<Map> response = restTemplate.exchange(
+                API_URL,
+                HttpMethod.PUT,
+                requestEntity,
+                Map.class
+        );
 
-        public String getTaskId() {
-            return taskId;
+        // Check response status
+        if (response.getStatusCodeValue() != 201) {
+            throw new RuntimeException("Unexpected response status: " + response.getStatusCodeValue());
         }
 
-        public void setTaskId(String taskId) {
-            this.taskId = taskId;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
+        // Extract task ID from response
+        if (response.getBody() != null && response.getBody().containsKey("id")) {
+            return response.getBody().get("id").toString();
+        } else {
+            throw new RuntimeException("Task ID not found in response");
         }
     }
 }
