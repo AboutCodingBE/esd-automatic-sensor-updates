@@ -1,0 +1,3 @@
+sensor:
+  api:
+    url: "http://localhost:8086/api"
