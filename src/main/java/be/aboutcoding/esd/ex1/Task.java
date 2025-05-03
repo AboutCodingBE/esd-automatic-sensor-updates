@@ -1,12 +1,12 @@
 package be.aboutcoding.esd.ex1;
 
-public record Task(String id, String type, String configurationFilename){
+public record Task(Long id, String type, String configurationFilename){
 
-    public static Task createConfigUpdateTaskFor(String sensorId) {
+    public static Task createConfigUpdateTaskFor(Long sensorId) {
         return new Task(sensorId, "configuration_update", "config123.cnf");
     }
 
-    public static Task createFirmwareUpdateTaskFor(String sensorId) {
+    public static Task createFirmwareUpdateTaskFor(Long sensorId) {
         return new Task(sensorId, "firmware_update", null);
     }
 }

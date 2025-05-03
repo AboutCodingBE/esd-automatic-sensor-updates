@@ -37,7 +37,7 @@ class TaskClientTest {
     @Test
     void scheduleFirmwareUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        Sensor sensor = new Sensor("123456789", "50.1.12Rev1", "config123.cfg", null);
+        Sensor sensor = new Sensor(123456789L, "50.1.12Rev1", "config123.cfg", null);
         Task expectedRequest = Task.createFirmwareUpdateTaskFor(sensor.getId());
         String taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
@@ -56,14 +56,14 @@ class TaskClientTest {
         // Assert
         mockServer.verify();
         assertThat(updatedSensor).isNotNull();
-        assertThat(updatedSensor.getId()).isEqualTo("123456789");
+        assertThat(updatedSensor.getId()).isEqualTo(123456789L);
         assertThat(updatedSensor.getStatus()).isEqualTo("updating_firmware");
     }
 
     @Test
     void scheduleConfigurationUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        Sensor sensor = new Sensor("987654321", "59.1.12Rev4", "invalid_config.cfg", null);
+        Sensor sensor = new Sensor(987654321L, "59.1.12Rev4", "invalid_config.cfg", null);
         Task expectedRequest = Task.createFirmwareUpdateTaskFor(sensor.getId());
         String taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
@@ -81,7 +81,7 @@ class TaskClientTest {
         // Assert
         mockServer.verify();
         assertThat(updatedSensor).isNotNull();
-        assertThat(updatedSensor.getId()).isEqualTo("987654321");
+        assertThat(updatedSensor.getId()).isEqualTo(987654321L);
         assertThat(updatedSensor.getStatus()).isEqualTo("updating_configuration");
     }
 }

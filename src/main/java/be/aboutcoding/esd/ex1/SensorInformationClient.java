@@ -1,6 +1,11 @@
 package be.aboutcoding.esd.ex1;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +43,22 @@ public class SensorInformationClient {
      * @param sensorId The ID of the sensor to retrieve information for
      * @return A Sensor object containing the sensor's details
      */
-    public Sensor getSensorInformation(String sensorId) {
+    public Sensor getSensorInformation(Long sensorId) {
         logger.info("Retrieving information for sensor with ID: {}", sensorId);
+
 
         try {
             String url = sensorApiUrl + "/sensors/" + sensorId;
-            ResponseEntity<SensorApiResponse> response = restTemplate.getForEntity(url, SensorApiResponse.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35==");
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
+            ResponseEntity<SensorApiResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    SensorApiResponse.class
+            );
             if (response.getBody() != null) {
                 SensorApiResponse apiResponse = response.getBody();
                 return mapToSensor(sensorId, apiResponse);
@@ -68,11 +82,11 @@ public class SensorInformationClient {
      * @param apiResponse The response from the sensor API
      * @return A mapped Sensor object
      */
-    private Sensor mapToSensor(String sensorId, SensorApiResponse apiResponse) {
+    private Sensor mapToSensor(Long sensorId, SensorApiResponse apiResponse) {
         return new Sensor(
                 sensorId,
-                apiResponse.getFirmwareVersion(),
-                apiResponse.getConfigurationFile(),
+                apiResponse.currentFirmware(),
+                apiResponse.currentConfiguration(),
                 null // Status will be determined by the validation process
         );
     }
@@ -84,31 +98,15 @@ public class SensorInformationClient {
      * @param sensorId The ID of the sensor
      * @return A default Sensor object
      */
-    private Sensor createDefaultSensor(String sensorId) {
+    private Sensor createDefaultSensor(Long sensorId) {
         return new Sensor(sensorId, null, null, null);
     }
 
     /**
      * Inner class representing the structure of the sensor API response.
      */
-    private static class SensorApiResponse {
-        private String firmwareVersion;
-        private String configurationFile;
-
-        public String getFirmwareVersion() {
-            return firmwareVersion;
-        }
-
-        public void setFirmwareVersion(String firmwareVersion) {
-            this.firmwareVersion = firmwareVersion;
-        }
-
-        public String getConfigurationFile() {
-            return configurationFile;
-        }
-
-        public void setConfigurationFile(String configurationFile) {
-            this.configurationFile = configurationFile;
-        }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static record SensorApiResponse(@JsonProperty("current_firmware") String currentFirmware,
+                                            @JsonProperty("current_configuration") String currentConfiguration) {
     }
 }

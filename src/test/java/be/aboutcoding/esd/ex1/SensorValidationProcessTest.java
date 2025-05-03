@@ -8,10 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -185,7 +183,7 @@ public class SensorValidationProcessTest {
         when(sensorInformationClient.getSensorInformation(sensor1.getId())).thenReturn(sensor1);
 
         var sensor2 = aSensorWith(INVALID_FIRMWARE_VERSION, VALID_CONFIGURATION);
-        sensor2.setId("323449876");
+        sensor2.setId(323449876L);
         when(sensorInformationClient.getSensorInformation(sensor2.getId())).thenReturn(sensor2);
 
         sensor2.setStatus("updating_firmware");
@@ -206,7 +204,7 @@ public class SensorValidationProcessTest {
     }
 
     private Sensor aSensorWith(String firmwareVersion, String configurationVersion) {
-        return new Sensor("323445678",
+        return new Sensor(323445678L,
                 firmwareVersion,
                 configurationVersion,
                 null);

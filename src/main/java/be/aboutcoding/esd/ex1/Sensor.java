@@ -1,23 +1,23 @@
 package be.aboutcoding.esd.ex1;
 
 public class Sensor {
-    private String id;
+    private Long id;
     private String firmwareVersion;
     private String configuration;
     private String status;
 
-    public Sensor(String id, String firmwareVersion, String configuration, String status) {
+    public Sensor(Long id, String firmwareVersion, String configuration, String status) {
         this.id = id;
         this.firmwareVersion = firmwareVersion;
         this.configuration = configuration;
         this.status = status;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

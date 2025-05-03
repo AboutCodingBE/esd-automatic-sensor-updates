@@ -21,8 +21,8 @@ public class IdParser {
      * @param inputStream The CSV input stream containing sensor IDs and types
      * @return A list of sensor IDs extracted from the CSV
      */
-    public List<String> parse(InputStream inputStream) {
-        List<String> sensorIds = new ArrayList<>();
+    public List<Long> parse(InputStream inputStream) {
+        List<Long> sensorIds = new ArrayList<>();
 
         try (Reader reader = new InputStreamReader(inputStream);
              CSVParser csvParser = CSVFormat.DEFAULT
@@ -34,14 +34,13 @@ public class IdParser {
             for (CSVRecord record : csvParser) {
                 String id = record.get("id");
                 if (id != null && !id.isEmpty()) {
-                    sensorIds.add(id);
+                    sensorIds.add(Long.parseLong(id));
                 }
             }
 
         } catch (IOException e) {
             throw new RuntimeException("Error parsing sensor IDs from CSV", e);
         }
-
         return sensorIds;
     }
 }

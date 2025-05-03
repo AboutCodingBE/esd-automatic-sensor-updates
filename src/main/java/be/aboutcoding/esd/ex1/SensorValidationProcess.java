@@ -22,10 +22,10 @@ public class SensorValidationProcess {
     }
 
     public List<Sensor> validateSensors(InputStream csvInputStream) {
-        List<String> sensorIds = idParser.parse(csvInputStream);
+        List<Long> sensorIds = idParser.parse(csvInputStream);
         List<Sensor> validatedSensors = new ArrayList<>();
 
-        for (String sensorId : sensorIds) {
+        for (Long sensorId : sensorIds) {
             Sensor sensor = sensorInformationClient.getSensorInformation(sensorId);
             Sensor validatedSensor = validateSensor(sensor);
             validatedSensors.add(validatedSensor);
