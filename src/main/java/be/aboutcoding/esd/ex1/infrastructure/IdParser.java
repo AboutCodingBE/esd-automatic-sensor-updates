@@ -1,4 +1,4 @@
-package be.aboutcoding.esd.ex1.process;
+package be.aboutcoding.esd.ex1.infrastructure;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class IdParser {
+class IdParser {
 
     /**
      * Parses sensor IDs from a CSV input stream using Apache Commons CSV.

@@ -1,21 +1,21 @@
 package be.aboutcoding.esd.ex1.infrastructure;
 
+import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * REST API for sensor validation operations.
- * Provides endpoints for validating sensor firmware and configuration.
- */
 @RestController
 @RequestMapping("/api/sensors")
 public class SensorValidationAPI {
@@ -23,17 +23,13 @@ public class SensorValidationAPI {
     private static final Logger logger = LoggerFactory.getLogger(SensorValidationAPI.class);
 
     private final SensorValidationProcess validationProcess;
+    private final IdParser idParser;
 
-    public SensorValidationAPI(SensorValidationProcess validationProcess) {
+    public SensorValidationAPI(SensorValidationProcess validationProcess, IdParser idParser) {
         this.validationProcess = validationProcess;
+        this.idParser = idParser;
     }
 
-    /**
-     * Endpoint for validating a list of sensors from a CSV file.
-     *
-     * @param file The CSV file containing sensor IDs and types
-     * @return A list of validation results for each sensor
-     */
     @PostMapping(value = "/validate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> validateSensors(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
@@ -42,8 +38,8 @@ public class SensorValidationAPI {
         }
 
         try {
-            // Process the CSV file
-            List<Sensor> validatedSensors = validationProcess.validateSensors(file.getInputStream());
+            var sensorIds = idParser.parse(file.getInputStream());
+            var validatedSensors = validationProcess.validateSensors(sensorIds);
 
             // Transform to simple response format
             List<SensorValidationResponse> response = validatedSensors.stream()

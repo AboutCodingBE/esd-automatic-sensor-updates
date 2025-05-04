@@ -2,13 +2,11 @@ package be.aboutcoding.esd.ex1.process;
 
 import be.aboutcoding.esd.ex1.model.Sensor;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SensorValidationProcess {
 
-    private final IdParser idParser;
     private final SensorInformationClient sensorInformationClient;
     private final FirmwareVerifier firmwareVerifier;
     private final ConfigurationVerifier configurationVerifier;
@@ -16,15 +14,13 @@ public class SensorValidationProcess {
 
     public SensorValidationProcess(SensorInformationClient sensorInformationClient,
                                    TaskClient taskClient) {
-        this.idParser = new IdParser();
         this.sensorInformationClient = sensorInformationClient;
         this.firmwareVerifier = new FirmwareVerifier();
         this.configurationVerifier = new ConfigurationVerifier();
         this.taskClient = taskClient;
     }
 
-    public List<Sensor> validateSensors(InputStream csvInputStream) {
-        List<Long> sensorIds = idParser.parse(csvInputStream);
+    public List<Sensor> validateSensors(List<Long> sensorIds) {
         List<Sensor> validatedSensors = new ArrayList<>();
 
         for (Long sensorId : sensorIds) {
