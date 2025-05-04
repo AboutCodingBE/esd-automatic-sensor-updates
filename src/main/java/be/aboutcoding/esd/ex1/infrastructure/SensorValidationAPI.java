@@ -25,9 +25,9 @@ public class SensorValidationAPI {
     private final SensorValidationProcess validationProcess;
     private final IdParser idParser;
 
-    public SensorValidationAPI(SensorValidationProcess validationProcess, IdParser idParser) {
+    public SensorValidationAPI(SensorValidationProcess validationProcess) {
         this.validationProcess = validationProcess;
-        this.idParser = idParser;
+        this.idParser = new IdParser();
     }
 
     @PostMapping(value = "/validate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
