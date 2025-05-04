@@ -1,4 +1,4 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.infrastructure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

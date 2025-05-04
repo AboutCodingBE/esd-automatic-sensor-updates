@@ -1,4 +1,4 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.infrastructure;
 
 public record Task(Long id, String type, String configurationFilename){
 

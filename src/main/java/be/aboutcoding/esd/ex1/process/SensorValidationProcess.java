@@ -1,4 +1,6 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.process;
+
+import be.aboutcoding.esd.ex1.model.Sensor;
 
 import java.io.InputStream;
 import java.util.ArrayList;

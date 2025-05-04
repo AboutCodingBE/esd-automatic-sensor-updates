@@ -1,5 +1,7 @@
 package be.aboutcoding.esd.ex1;
 
+import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.process.SensorInformationClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,14 +1,14 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.process;
 
+import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.infrastructure.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Component

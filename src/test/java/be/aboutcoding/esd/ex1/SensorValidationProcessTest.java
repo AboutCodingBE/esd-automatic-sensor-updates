@@ -1,5 +1,9 @@
 package be.aboutcoding.esd.ex1;
 
+import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.process.SensorInformationClient;
+import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
+import be.aboutcoding.esd.ex1.process.TaskClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

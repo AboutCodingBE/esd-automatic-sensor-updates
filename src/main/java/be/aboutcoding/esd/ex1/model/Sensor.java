@@ -1,4 +1,4 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.model;
 
 public class Sensor {
     private Long id;

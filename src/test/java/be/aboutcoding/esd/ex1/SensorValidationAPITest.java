@@ -1,5 +1,8 @@
 package be.aboutcoding.esd.ex1;
 
+import be.aboutcoding.esd.ex1.infrastructure.SensorValidationAPI;
+import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

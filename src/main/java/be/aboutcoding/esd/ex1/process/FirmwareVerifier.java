@@ -1,4 +1,4 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.process;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
