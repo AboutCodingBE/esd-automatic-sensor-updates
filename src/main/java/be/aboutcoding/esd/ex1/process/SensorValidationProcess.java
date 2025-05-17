@@ -1,10 +1,12 @@
 package be.aboutcoding.esd.ex1.process;
 
 import be.aboutcoding.esd.ex1.model.Sensor;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class SensorValidationProcess {
 
     private final SensorInformationClient sensorInformationClient;
