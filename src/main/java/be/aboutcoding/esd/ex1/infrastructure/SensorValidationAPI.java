@@ -1,5 +1,7 @@
 package be.aboutcoding.esd.ex1.infrastructure;
 
+import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
