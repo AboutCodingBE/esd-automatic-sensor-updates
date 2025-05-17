@@ -17,46 +17,39 @@ public class TaskClient {
     private static final Logger logger = LoggerFactory.getLogger(TaskClient.class);
     public static final String TASK_URI = "/tasks";
 
-    private final String apiUrl;
+    private final ApiProperties properties;
     private final RestTemplate restTemplate;
 
     public TaskClient(RestTemplate restTemplate,
-                      @Value("${sensor.api.url}") String apiUrl) {
-        this.apiUrl = apiUrl + TASK_URI;
+                      ApiProperties properties) {
         this.restTemplate = restTemplate;
+        this.properties = properties;
     }
 
     public Sensor scheduleFirmwareUpdate(Sensor sensor) {
         String taskId = scheduleTask(Task.createFirmwareUpdateTaskFor(sensor.getId()));
         logger.info("Scheduled firmware update task with ID: {} for sensor: {}", taskId, sensor.getId());
 
-        return new Sensor(
-                sensor.getId(),
-                sensor.getFirmwareVersion(),
-                sensor.getConfiguration(),
-                "updating_firmware"
-        );
+        sensor.setStatus("updating_firmware");
+        return sensor;
     }
 
     public Sensor scheduleConfigurationUpdate(Sensor sensor) {
         String taskId = scheduleTask(Task.createConfigUpdateTaskFor(sensor.getId()));
         logger.info("Scheduled configuration update task with ID: {} for sensor: {}", taskId, sensor.getId());
 
-        return new Sensor(
-                sensor.getId(),
-                sensor.getFirmwareVersion(),
-                sensor.getConfiguration(),
-                "updating_configuration"
-        );
+        sensor.setStatus("updating_configuration");
+        return sensor;
     }
 
     private String scheduleTask(Task requestBody) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35==");
+        headers.set("x-auth-id", properties.authKey());
+        var completeUrl = properties.url() + TASK_URI;
 
         HttpEntity<Task> requestEntity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<Map> response = restTemplate.exchange(
-                apiUrl,
+                completeUrl,
                 HttpMethod.PUT,
                 requestEntity,
                 Map.class
