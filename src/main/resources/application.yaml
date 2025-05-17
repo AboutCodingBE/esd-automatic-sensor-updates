@@ -1,3 +1,4 @@
 sensor:
   api:
     url: "http://www.mysensors.com/api"
+    auth-key: "CL019567d9-6e3b-738b-9b6d-32496110bd35=="
