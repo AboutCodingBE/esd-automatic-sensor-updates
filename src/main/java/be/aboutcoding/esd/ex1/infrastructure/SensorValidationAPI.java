@@ -37,27 +37,17 @@ public class SensorValidationAPI {
             return ResponseEntity.badRequest().body("Please upload a non-empty CSV file");
         }
 
-        try {
-            var sensorIds = idParser.parse(file.getInputStream());
-            var validatedSensors = validationProcess.validateSensors(sensorIds);
+        var sensorIds = idParser.parse(file);
+        var validatedSensors = validationProcess.validateSensors(sensorIds);
 
-            // Transform to simple response format
-            List<SensorValidationResponse> response = validatedSensors.stream()
-                    .map(sensor -> new SensorValidationResponse(sensor.getId(), sensor.getStatus()))
-                    .collect(Collectors.toList());
+        // Transform to simple response format
+        List<SensorValidationResponse> response = validatedSensors.stream()
+                .map(sensor -> new SensorValidationResponse(sensor.getId(), sensor.getStatus()))
+                .collect(Collectors.toList());
 
-            return ResponseEntity.ok(response);
-
-        } catch (IOException e) {
-            logger.error("Error reading uploaded file", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to read the uploaded file");
-        }
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Simple DTO for sensor validation response.
-     */
-    private static record SensorValidationResponse(Long id, String status) {
+    private record SensorValidationResponse(Long id, String status) {
     }
 }

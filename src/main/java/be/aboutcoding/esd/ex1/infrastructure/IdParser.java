@@ -3,6 +3,7 @@ package be.aboutcoding.esd.ex1.infrastructure;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,10 +14,10 @@ import java.util.List;
 
 class IdParser {
 
-    public List<Long> parse(InputStream inputStream) {
+    public List<Long> parse(MultipartFile idsFile) {
         List<Long> sensorIds = new ArrayList<>();
 
-        try (Reader reader = new InputStreamReader(inputStream);
+        try (Reader reader = new InputStreamReader(idsFile.getInputStream());
              CSVParser csvParser = CSVFormat.DEFAULT
                      .withFirstRecordAsHeader()
                      .withIgnoreHeaderCase()
