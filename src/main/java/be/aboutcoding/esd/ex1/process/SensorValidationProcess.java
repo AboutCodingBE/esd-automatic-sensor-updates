@@ -10,15 +10,11 @@ import java.util.List;
 public class SensorValidationProcess {
 
     private final SensorInformationClient sensorInformationClient;
-    private final FirmwareVerifier firmwareVerifier;
-    private final ConfigurationVerifier configurationVerifier;
     private final TaskClient taskClient;
 
     public SensorValidationProcess(SensorInformationClient sensorInformationClient,
                                    TaskClient taskClient) {
         this.sensorInformationClient = sensorInformationClient;
-        this.firmwareVerifier = new FirmwareVerifier();
-        this.configurationVerifier = new ConfigurationVerifier();
         this.taskClient = taskClient;
     }
 
@@ -42,7 +38,7 @@ public class SensorValidationProcess {
         }
 
         // Check if firmware needs to be updated
-        if (!firmwareVerifier.isUpToDate(sensor.getFirmwareVersion())) {
+        if (!sensor.hasValidFirmware()) {
             return taskClient.scheduleFirmwareUpdate(sensor);
         }
 
@@ -52,11 +48,10 @@ public class SensorValidationProcess {
         }
 
         // Check if configuration needs to be updated
-        if (!configurationVerifier.isValid(sensor.getConfiguration())) {
+        if (!sensor.hasValidConfiguration()) {
             return taskClient.scheduleConfigurationUpdate(sensor);
         }
 
-        // If everything is valid, mark as ready
         sensor.setStatus("ready");
         return sensor;
     }
