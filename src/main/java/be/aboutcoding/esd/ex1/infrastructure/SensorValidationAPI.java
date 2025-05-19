@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class SensorValidationAPI {
 
     private static final Logger logger = LoggerFactory.getLogger(SensorValidationAPI.class);
-
     private final SensorValidationProcess validationProcess;
     private final IdParser idParser;
 

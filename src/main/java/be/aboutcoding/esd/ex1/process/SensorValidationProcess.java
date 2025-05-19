@@ -22,32 +22,28 @@ public class SensorValidationProcess {
         List<Sensor> validatedSensors = new ArrayList<>();
 
         for (Long sensorId : sensorIds) {
-            Sensor sensor = sensorInformationClient.getSensorInformation(sensorId);
-            Sensor validatedSensor = validateSensor(sensor);
-            validatedSensors.add(validatedSensor);
+            var ts50x = sensorInformationClient.getSensorInformation(sensorId);
+            var validatedTs50x = validateSensor(ts50x);
+            validatedSensors.add(validatedTs50x);
         }
 
         return validatedSensors;
     }
 
     private Sensor validateSensor(Sensor sensor) {
-        // Check if firmware is missing
         if (sensor.getFirmwareVersion() == null) {
             sensor.setStatus("firmware_unknown");
             return sensor;
         }
 
-        // Check if firmware needs to be updated
         if (!sensor.hasValidFirmware()) {
             return taskClient.scheduleFirmwareUpdate(sensor);
         }
 
-        // Check if configuration is missing
         if (sensor.getConfiguration() == null) {
             return taskClient.scheduleConfigurationUpdate(sensor);
         }
 
-        // Check if configuration needs to be updated
         if (!sensor.hasValidConfiguration()) {
             return taskClient.scheduleConfigurationUpdate(sensor);
         }
