@@ -15,6 +15,12 @@ public class TS50X {
     private static final Pattern FIRMWARE_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)Rev(\\d+)");
 
     public TS50X(Long id, String firmwareVersion, String configuration, String status) {
+        if(id == null) {
+            throw new NullPointerException("TS50X with an id that is null is not allowed");
+        }
+        if (firmwareVersion == null || firmwareVersion.isEmpty()) {
+            throw new IllegalArgumentException("TS50X with id %s should have a firmware version".formatted(id));
+        }
         this.id = id;
         this.firmwareVersion = firmwareVersion;
         this.configuration = configuration;
