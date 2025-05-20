@@ -1,6 +1,6 @@
 package be.aboutcoding.esd.ex1.process;
 
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,41 +18,41 @@ public class SensorValidationProcess {
         this.taskClient = taskClient;
     }
 
-    public List<Sensor> validateSensors(List<Long> sensorIds) {
-        List<Sensor> validatedSensors = new ArrayList<>();
+    public List<TS50X> validateSensors(List<Long> sensorIds) {
+        List<TS50X> validatedSensors = new ArrayList<>();
 
         for (Long sensorId : sensorIds) {
-            Sensor sensor = sensorInformationClient.getSensorInformation(sensorId);
-            Sensor validatedSensor = validateSensor(sensor);
+            TS50X TS50X = sensorInformationClient.getSensorInformation(sensorId);
+            be.aboutcoding.esd.ex1.model.TS50X validatedSensor = validateSensor(TS50X);
             validatedSensors.add(validatedSensor);
         }
 
         return validatedSensors;
     }
 
-    private Sensor validateSensor(Sensor sensor) {
+    private TS50X validateSensor(TS50X TS50X) {
         // Check if firmware is missing
-        if (sensor.getFirmwareVersion() == null) {
-            sensor.setStatus("firmware_unknown");
-            return sensor;
+        if (TS50X.getFirmwareVersion() == null) {
+            TS50X.setStatus("firmware_unknown");
+            return TS50X;
         }
 
         // Check if firmware needs to be updated
-        if (!sensor.hasValidFirmware()) {
-            return taskClient.scheduleFirmwareUpdate(sensor);
+        if (!TS50X.hasValidFirmware()) {
+            return taskClient.scheduleFirmwareUpdate(TS50X);
         }
 
         // Check if configuration is missing
-        if (sensor.getConfiguration() == null) {
-            return taskClient.scheduleConfigurationUpdate(sensor);
+        if (TS50X.getConfiguration() == null) {
+            return taskClient.scheduleConfigurationUpdate(TS50X);
         }
 
         // Check if configuration needs to be updated
-        if (!sensor.hasValidConfiguration()) {
-            return taskClient.scheduleConfigurationUpdate(sensor);
+        if (!TS50X.hasValidConfiguration()) {
+            return taskClient.scheduleConfigurationUpdate(TS50X);
         }
 
-        sensor.setStatus("ready");
-        return sensor;
+        TS50X.setStatus("ready");
+        return TS50X;
     }
 }

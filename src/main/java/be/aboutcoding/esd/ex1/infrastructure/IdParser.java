@@ -17,7 +17,7 @@ class IdParser {
         List<Long> sensorIds = new ArrayList<>();
 
         try (Reader reader = new InputStreamReader(inputStream);
-             CSVParser csvParser = CSVFormat.DEFAULT
+             var csvParser = CSVFormat.DEFAULT
                      .withFirstRecordAsHeader()
                      .withIgnoreHeaderCase()
                      .withTrim()

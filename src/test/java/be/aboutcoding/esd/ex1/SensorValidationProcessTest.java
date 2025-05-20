@@ -1,6 +1,6 @@
 package be.aboutcoding.esd.ex1;
 
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import be.aboutcoding.esd.ex1.process.SensorInformationClient;
 import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import be.aboutcoding.esd.ex1.process.TaskClient;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -211,8 +209,8 @@ public class SensorValidationProcessTest {
         return Arrays.asList(ids);
     }
 
-    private Sensor aSensorWith(Long id, String firmwareVersion, String configurationVersion) {
-        return new Sensor(id,
+    private TS50X aSensorWith(Long id, String firmwareVersion, String configurationVersion) {
+        return new TS50X(id,
                 firmwareVersion,
                 configurationVersion,
                 null);

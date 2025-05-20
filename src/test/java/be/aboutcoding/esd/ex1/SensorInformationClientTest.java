@@ -1,6 +1,6 @@
 package be.aboutcoding.esd.ex1;
 
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import be.aboutcoding.esd.ex1.process.SensorInformationClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class SensorInformationClientTest {
                         .body(sensorInformationFor(sensorId)));
 
         // Act
-        Sensor sensor = sensorInformationClient.getSensorInformation(sensorId);
+        TS50X sensor = sensorInformationClient.getSensorInformation(sensorId);
 
         // Assert
         mockServer.verify();

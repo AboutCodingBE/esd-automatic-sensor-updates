@@ -1,7 +1,7 @@
 package be.aboutcoding.esd.ex1;
 
 import be.aboutcoding.esd.ex1.infrastructure.Task;
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import be.aboutcoding.esd.ex1.process.TaskClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +40,9 @@ class TaskClientTest {
     @Test
     void scheduleFirmwareUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        Sensor sensor = new Sensor(123456789L, "50.1.12Rev1", "config123.cfg", null);
-        Task expectedRequest = Task.createFirmwareUpdateTaskFor(sensor.getId());
-        String taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
+        var TS50X = new TS50X(123456789L, "50.1.12Rev1", "config123.cfg", null);
+        var expectedRequest = Task.createFirmwareUpdateTaskFor(TS50X.getId());
+        var taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
         // Setup mock response
         mockServer.expect(requestTo("http://localhost:8086/api/tasks"))
@@ -54,7 +54,7 @@ class TaskClientTest {
                         .body("{\"id\":\"task-123\"}"));
 
         // Act
-        var updatedSensor = taskClient.scheduleFirmwareUpdate(sensor);
+        var updatedSensor = taskClient.scheduleFirmwareUpdate(TS50X);
 
         // Assert
         mockServer.verify();
@@ -66,7 +66,7 @@ class TaskClientTest {
     @Test
     void scheduleConfigurationUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        Sensor sensor = new Sensor(987654321L, "59.1.12Rev4", "invalid_config.cfg", null);
+        TS50X sensor = new TS50X(987654321L, "59.1.12Rev4", "invalid_config.cfg", null);
         Task expectedRequest = Task.createFirmwareUpdateTaskFor(sensor.getId());
         String taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
@@ -79,7 +79,7 @@ class TaskClientTest {
                         .body("{\"id\":\"task-456\"}"));
 
         // Act
-        Sensor updatedSensor = taskClient.scheduleConfigurationUpdate(sensor);
+        TS50X updatedSensor = taskClient.scheduleConfigurationUpdate(sensor);
 
         // Assert
         mockServer.verify();

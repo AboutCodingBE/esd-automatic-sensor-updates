@@ -1,7 +1,7 @@
 package be.aboutcoding.esd.ex1.process;
 
 import be.aboutcoding.esd.ex1.infrastructure.SensorInformationResponse;
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +24,7 @@ public class SensorInformationClient {
         this.properties = properties;
     }
 
-    public Sensor getSensorInformation(Long sensorId) {
+    public TS50X getSensorInformation(Long sensorId) {
         log.info("Retrieving information for sensor with ID: {}", sensorId);
 
         try {
@@ -55,7 +55,7 @@ public class SensorInformationClient {
         }
     }
 
-    private Sensor createDefaultSensor(Long sensorId) {
-        return new Sensor(sensorId, null, null, null);
+    private TS50X createDefaultSensor(Long sensorId) {
+        return new TS50X(sensorId, null, null, null);
     }
 }
