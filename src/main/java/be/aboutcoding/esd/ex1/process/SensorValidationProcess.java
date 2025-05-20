@@ -1,6 +1,6 @@
 package be.aboutcoding.esd.ex1.process;
 
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,19 +18,20 @@ public class SensorValidationProcess {
         this.taskClient = taskClient;
     }
 
-    public List<Sensor> validateSensors(List<Long> sensorIds) {
-        List<Sensor> validatedSensors = new ArrayList<>();
+    public List<TS50X> validateSensors(List<Long> sensorIds) {
+        List<TS50X> validatedSensors = new ArrayList<>();
 
         for (Long sensorId : sensorIds) {
-            var ts50x = sensorInformationClient.getSensorInformation(sensorId);
-            var validatedTs50x = validateSensor(ts50x);
-            validatedSensors.add(validatedTs50x);
+            var TS50X = sensorInformationClient.getSensorInformation(sensorId);
+            var validatedSensor = validateSensor(TS50X);
+            validatedSensors.add(validatedSensor);
         }
 
         return validatedSensors;
     }
 
-    private Sensor validateSensor(Sensor sensor) {
+    private TS50X validateSensor(TS50X sensor) {
+        // Check if firmware is missing
         if (sensor.getFirmwareVersion() == null) {
             sensor.setStatus("firmware_unknown");
             return sensor;

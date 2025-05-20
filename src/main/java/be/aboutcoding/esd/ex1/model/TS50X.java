@@ -3,7 +3,7 @@ package be.aboutcoding.esd.ex1.model;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Sensor {
+public class TS50X {
 
     private Long id;
     private String firmwareVersion;
@@ -14,7 +14,7 @@ public class Sensor {
     private static final String VALID_CONFIGURATION_FILENAME = "config123.cfg";
     private static final Pattern FIRMWARE_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)Rev(\\d+)");
 
-    public Sensor(Long id, String firmwareVersion, String configuration, String status) {
+    public TS50X(Long id, String firmwareVersion, String configuration, String status) {
         this.id = id;
         this.firmwareVersion = firmwareVersion;
         this.configuration = configuration;

@@ -1,7 +1,7 @@
 package be.aboutcoding.esd.ex1;
 
 import be.aboutcoding.esd.ex1.infrastructure.SensorValidationAPI;
-import be.aboutcoding.esd.ex1.model.Sensor;
+import be.aboutcoding.esd.ex1.model.TS50X;
 import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +38,9 @@ class SensorValidationAPITest {
                 csvContent.getBytes()
         );
 
-        List<Sensor> validatedSensors = Arrays.asList(
-                new Sensor(323445678L, "60.1.12Rev1", "config123.cfg", "ready"),
-                new Sensor(323445680L, "50.1.12Rev1", "config_invalid.cfg", "updating_firmware")
+        List<TS50X> validatedSensors = Arrays.asList(
+                new TS50X(323445678L, "60.1.12Rev1", "config123.cfg", "ready"),
+                new TS50X(323445680L, "50.1.12Rev1", "config_invalid.cfg", "updating_firmware")
         );
 
         when(validationProcess.validateSensors(any())).thenReturn(validatedSensors);
