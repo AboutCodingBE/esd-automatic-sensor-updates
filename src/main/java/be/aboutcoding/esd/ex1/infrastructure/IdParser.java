@@ -1,5 +1,6 @@
 package be.aboutcoding.esd.ex1.infrastructure;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -12,6 +13,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 class IdParser {
 
     public List<Long> parse(MultipartFile idsFile) {
@@ -27,12 +29,17 @@ class IdParser {
             for (CSVRecord record : csvParser) {
                 String id = record.get("id");
                 if (id != null && !id.isEmpty()) {
-                    sensorIds.add(Long.parseLong(id));
+                    try {
+                        sensorIds.add(Long.parseLong(id));
+                    }
+                    catch(NumberFormatException numberFormat) {
+                        log.error("File contains id that is not a nubmer: {}", id);
+                    }
                 }
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Error parsing sensor IDs from CSV", e);
+            throw new RuntimeException("Error reading sensor IDs from CSV", e);
         }
         return sensorIds;
     }
