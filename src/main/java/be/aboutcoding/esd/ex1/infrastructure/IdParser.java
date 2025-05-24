@@ -37,7 +37,6 @@ class IdParser {
                     }
                 }
             }
-
         } catch (IOException e) {
             throw new RuntimeException("Error reading sensor IDs from CSV", e);
         }
