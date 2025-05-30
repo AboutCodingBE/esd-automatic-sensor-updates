@@ -205,6 +205,19 @@ public class SensorValidationProcessTest {
         verify(sensorInformationClient).getSensorInformation(sensor2.getId());
     }
 
+    @Test
+    void sensorWithNoFirmwareVersionShouldNotTriggerTasks() {
+        var ids = List.of(SENSOR_ID);
+
+        var sensor = aSensorWith(SENSOR_ID, null, null);
+        when(sensorInformationClient.getSensorInformation(SENSOR_ID)).thenReturn(sensor);
+
+        var result = sensorValidationProcess.validateSensors(ids);
+
+        verifyNoInteractions(taskClient);
+        assertThat(result.getFirst().getStatus()).isEqualTo("Unknown");
+    }
+
     private List<Long> aListOfIds(Long...ids){
         return Arrays.asList(ids);
     }
@@ -212,7 +225,6 @@ public class SensorValidationProcessTest {
     private TS50X aSensorWith(Long id, String firmwareVersion, String configurationVersion) {
         return new TS50X(id,
                 firmwareVersion,
-                configurationVersion,
-                null);
+                configurationVersion);
     }
 }

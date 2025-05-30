@@ -1,7 +1,6 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.process;
 
 import be.aboutcoding.esd.ex1.model.TS50X;
-import be.aboutcoding.esd.ex1.process.SensorInformationClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +63,29 @@ class SensorInformationClientTest {
         assertThat(sensor.getStatus()).isNull();
     }
 
+    @Test
+    void shouldReturnSensorWithStatusUnknownWhenNoExtraInformation() {
+        // Arrange
+        var sensorId = 1234567L;
+
+        // Setup mock response
+        mockServer.expect(requestTo(BASE_URL + "/sensors/" + sensorId))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35=="))
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(emptyInformationFor(sensorId)));
+
+        // Act
+        var result = sensorInformationClient.getSensorInformation(sensorId);
+
+        // Assert
+        assertThat(result.getId()).isEqualTo(sensorId);
+        assertThat(result.getStatus()).isEqualTo("Unknown");
+        assertThat(result.getConfiguration()).isNull();
+
+    }
+
     private String sensorInformationFor(Long id) {
         return """
                 {
@@ -79,6 +101,25 @@ class SensorInformationClientTest {
                   "task_count": 5,
                   "activity_status": "Online",
                   "task_queue": [124355, 44435322]
+                }
+                """.formatted(id);
+    }
+
+    private String emptyInformationFor(Long id) {
+        return """
+                {
+                  "serial": %d,
+                  "type": null,
+                  "status_id": 0,
+                  "current_configuration": null,
+                  "current_firmware": null,
+                  "created_at": null,
+                  "updated_at": null,
+                  "status_name": null,
+                  "next_task": null,
+                  "task_count": 0,
+                  "activity_status": null,
+                  "task_queue": null
                 }
                 """.formatted(id);
     }

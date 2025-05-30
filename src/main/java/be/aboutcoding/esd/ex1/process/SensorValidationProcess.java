@@ -31,18 +31,12 @@ public class SensorValidationProcess {
     }
 
     private TS50X validateSensor(TS50X sensor) {
-        // Check if firmware is missing
-        if (sensor.getFirmwareVersion() == null) {
-            sensor.setStatus("firmware_unknown");
+        if (!sensor.hasFirmwareVersion()) {
             return sensor;
         }
 
         if (!sensor.hasValidFirmware()) {
             return taskClient.scheduleFirmwareUpdate(sensor);
-        }
-
-        if (sensor.getConfiguration() == null) {
-            return taskClient.scheduleConfigurationUpdate(sensor);
         }
 
         if (!sensor.hasValidConfiguration()) {

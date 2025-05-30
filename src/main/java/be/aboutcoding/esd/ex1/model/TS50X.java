@@ -14,17 +14,18 @@ public class TS50X {
     private static final String VALID_CONFIGURATION_FILENAME = "config123.cfg";
     private static final Pattern FIRMWARE_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)Rev(\\d+)");
 
-    public TS50X(Long id, String firmwareVersion, String configuration, String status) {
+    private static final String UNKNOWN_STATUS = "Unknown";
+
+    public TS50X(Long id, String firmwareVersion, String configuration) {
         if(id == null) {
             throw new NullPointerException("TS50X with an id that is null is not allowed");
         }
         if (firmwareVersion == null || firmwareVersion.isEmpty()) {
-            throw new IllegalArgumentException("TS50X with id %s should have a firmware version".formatted(id));
+            this.status = UNKNOWN_STATUS;
         }
         this.id = id;
         this.firmwareVersion = firmwareVersion;
         this.configuration = configuration;
-        this.status = status;
     }
 
     public Long getId() {
@@ -55,12 +56,17 @@ public class TS50X {
         return status;
     }
 
+    public boolean hasFirmwareVersion() {
+        return firmwareVersion != null && !firmwareVersion.isEmpty();
+    }
+
     public void setStatus(String status) {
-        this.status = status;
+        if(this.status != null && !this.status.equals(UNKNOWN_STATUS))
+            this.status = status;
     }
 
     public boolean hasValidFirmware() {
-        if (firmwareVersion == null) {
+        if (!hasFirmwareVersion()) {
             return false;
         }
 

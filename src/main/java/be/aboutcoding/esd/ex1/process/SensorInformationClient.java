@@ -46,6 +46,6 @@ public class SensorInformationClient {
     }
 
     private TS50X createDefaultSensor(Long sensorId) {
-        return new TS50X(sensorId, null, null, null);
+        return new TS50X(sensorId, null, null);
     }
 }

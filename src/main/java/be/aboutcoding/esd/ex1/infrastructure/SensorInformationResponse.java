@@ -12,8 +12,7 @@ public record SensorInformationResponse(@JsonProperty("serial") Long serial,
         return new TS50X(
                 serial,
                 currentFirmware(),
-                currentConfiguration(),
-                null // Status will be determined by the validation process
+                currentConfiguration()
         );
     }
 }

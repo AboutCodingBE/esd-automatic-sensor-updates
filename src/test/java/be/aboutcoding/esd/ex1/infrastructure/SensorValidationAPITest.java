@@ -1,6 +1,5 @@
 package be.aboutcoding.esd.ex1.infrastructure;
 
-import be.aboutcoding.esd.ex1.infrastructure.SensorValidationAPI;
 import be.aboutcoding.esd.ex1.model.TS50X;
 import be.aboutcoding.esd.ex1.process.SensorValidationProcess;
 import org.junit.jupiter.api.Test;
@@ -40,8 +39,8 @@ class SensorValidationAPITest {
         var file = aMockFile(csvContent);
 
         var validatedSensors = Arrays.asList(
-                new TS50X(323445678L, "60.1.12Rev1", "config123.cfg", "ready"),
-                new TS50X(323445680L, "50.1.12Rev1", "config_invalid.cfg", "updating_firmware")
+                aSensorWithStatus("Ready"),
+                aSensorWithStatus("updating_firmware")
         );
 
         when(validationProcess.validateSensors(any())).thenReturn(validatedSensors);
@@ -80,5 +79,11 @@ class SensorValidationAPITest {
                 "text/csv",
                 content.getBytes()
         );
+    }
+
+    private TS50X aSensorWithStatus(String status){
+        var sensor = new TS50X(323445678L, "60.1.12Rev1", "config123.cfg");
+        sensor.setStatus(status);
+        return sensor;
     }
 }

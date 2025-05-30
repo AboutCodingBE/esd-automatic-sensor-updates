@@ -40,7 +40,7 @@ class TaskClientTest {
     @Test
     void scheduleFirmwareUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        var TS50X = new TS50X(123456789L, "50.1.12Rev1", "config123.cfg", null);
+        var TS50X = new TS50X(123456789L, "50.1.12Rev1", "config123.cfg");
         var expectedRequest = Task.createFirmwareUpdateTaskFor(TS50X.getId());
         var taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
@@ -66,7 +66,7 @@ class TaskClientTest {
     @Test
     void scheduleConfigurationUpdate_shouldReturnSensorWithUpdatedStatus() throws Exception{
         // Arrange
-        TS50X sensor = new TS50X(987654321L, "59.1.12Rev4", "invalid_config.cfg", null);
+        TS50X sensor = new TS50X(987654321L, "59.1.12Rev4", "invalid_config.cfg");
         Task expectedRequest = Task.createFirmwareUpdateTaskFor(sensor.getId());
         String taskRequestBody = objectMapper.writeValueAsString(expectedRequest);
 
