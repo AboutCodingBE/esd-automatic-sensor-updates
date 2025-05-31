@@ -31,7 +31,7 @@ public class SensorValidationProcess {
     }
 
     private TS50X validateSensor(TS50X sensor) {
-        if (!sensor.hasFirmwareVersion()) {
+        if(!sensor.shouldValidateSensor()) {
             return sensor;
         }
 

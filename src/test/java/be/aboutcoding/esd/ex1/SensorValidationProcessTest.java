@@ -7,6 +7,8 @@ import be.aboutcoding.esd.ex1.process.TaskClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -210,6 +212,20 @@ public class SensorValidationProcessTest {
         var ids = List.of(SENSOR_ID);
 
         var sensor = aSensorWith(SENSOR_ID, null, null);
+        when(sensorInformationClient.getSensorInformation(SENSOR_ID)).thenReturn(sensor);
+
+        var result = sensorValidationProcess.validateSensors(ids);
+
+        verifyNoInteractions(taskClient);
+        assertThat(result.getFirst().getStatus()).isEqualTo("Unknown");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"12.1Rev1","10.XX.2.Rev1", "randomstring", "1.1.1.1.1.1.1.1.Rev1", "1.1.1Rev1.1.1.1"})
+    void sensorsWithMalformedFirmwareVersionShouldNotTriggerTasks(String firmwareVersion) {
+        var ids = List.of(SENSOR_ID);
+
+        var sensor = aSensorWith(SENSOR_ID, firmwareVersion, null);
         when(sensorInformationClient.getSensorInformation(SENSOR_ID)).thenReturn(sensor);
 
         var result = sensorValidationProcess.validateSensors(ids);

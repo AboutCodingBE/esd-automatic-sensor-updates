@@ -20,7 +20,7 @@ public class TS50X {
         if(id == null) {
             throw new NullPointerException("TS50X with an id that is null is not allowed");
         }
-        if (firmwareVersion == null || firmwareVersion.isEmpty()) {
+        if (firmwareVersion == null || firmwareVersion.isEmpty() || !canParseFirmwareVersion(firmwareVersion)) {
             this.status = UNKNOWN_STATUS;
         }
         this.id = id;
@@ -56,8 +56,17 @@ public class TS50X {
         return status;
     }
 
-    public boolean hasFirmwareVersion() {
-        return firmwareVersion != null && !firmwareVersion.isEmpty();
+    private boolean canParseFirmwareVersion(String firmwareVersion) {
+        Matcher matcher = FIRMWARE_VERSION_PATTERN.matcher(firmwareVersion);
+
+        if (!matcher.matches()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean shouldValidateSensor() {
+        return this.status == null || !this.status.equals(UNKNOWN_STATUS);
     }
 
     public void setStatus(String status) {
@@ -66,7 +75,7 @@ public class TS50X {
     }
 
     public boolean hasValidFirmware() {
-        if (!hasFirmwareVersion()) {
+        if (firmwareVersion == null || firmwareVersion.isEmpty()) {
             return false;
         }
 
