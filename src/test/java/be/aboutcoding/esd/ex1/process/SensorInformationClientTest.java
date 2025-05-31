@@ -3,6 +3,9 @@ package be.aboutcoding.esd.ex1.process;
 import be.aboutcoding.esd.ex1.model.TS50X;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -21,6 +24,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class SensorInformationClientTest {
 
     private static final String BASE_URL = "http://localhost:8086/api";
+    private static final Long SENSOR_ID = 1234567l;
 
     @Autowired
     private SensorInformationClient sensorInformationClient;
@@ -39,25 +43,24 @@ class SensorInformationClientTest {
     @Test
     void getSensorInformation_shouldReturnSensorWithFirmwareAndConfiguration() {
         // Arrange
-        var sensorId = 323445678L;
         var expectedFirmwareVersion = "59.1.12Rev4";
         var expectedConfiguriation = "some_configuration.cfg";
 
         // Setup mock response
-        mockServer.expect(requestTo(BASE_URL + "/sensors/" + sensorId))
+        mockServer.expect(requestTo(BASE_URL + "/sensors/" + SENSOR_ID))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35=="))
                 .andRespond(withStatus(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(sensorInformationFor(sensorId)));
+                        .body(sensorInformationFor(SENSOR_ID)));
 
         // Act
-        TS50X sensor = sensorInformationClient.getSensorInformation(sensorId);
+        TS50X sensor = sensorInformationClient.getSensorInformation(SENSOR_ID);
 
         // Assert
         mockServer.verify();
         assertThat(sensor).isNotNull();
-        assertThat(sensor.getId()).isEqualTo(sensorId);
+        assertThat(sensor.getId()).isEqualTo(SENSOR_ID);
         assertThat(sensor.getFirmwareVersion()).isEqualTo(expectedFirmwareVersion);
         assertThat(sensor.getConfiguration()).isEqualTo(expectedConfiguriation);
         assertThat(sensor.getStatus()).isNull();
@@ -65,25 +68,42 @@ class SensorInformationClientTest {
 
     @Test
     void shouldReturnSensorWithStatusUnknownWhenNoExtraInformation() {
-        // Arrange
-        var sensorId = 1234567L;
-
         // Setup mock response
-        mockServer.expect(requestTo(BASE_URL + "/sensors/" + sensorId))
+        mockServer.expect(requestTo(BASE_URL + "/sensors/" + SENSOR_ID))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(header("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35=="))
                 .andRespond(withStatus(HttpStatus.OK)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(emptyInformationFor(sensorId)));
+                        .body(emptyInformationFor(SENSOR_ID)));
 
         // Act
-        var result = sensorInformationClient.getSensorInformation(sensorId);
+        var result = sensorInformationClient.getSensorInformation(SENSOR_ID);
 
         // Assert
-        assertThat(result.getId()).isEqualTo(sensorId);
+        assertThat(result.getId()).isEqualTo(SENSOR_ID);
         assertThat(result.getStatus()).isEqualTo("Unknown");
         assertThat(result.getConfiguration()).isNull();
 
+    }
+    
+    @ParameterizedTest
+    @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "BAD_REQUEST", "FORBIDDEN", "GATEWAY_TIMEOUT"})
+    void shouldReturnEmptySensorWhenRequestFails(HttpStatus status) {
+        //Arrange
+        mockServer.expect(requestTo(BASE_URL + "/sensors/" + SENSOR_ID))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header("x-auth-id", "CL019567d9-6e3b-738b-9b6d-32496110bd35=="))
+                .andRespond(withStatus(status));
+
+        // Act
+        var result = sensorInformationClient.getSensorInformation(SENSOR_ID);
+
+        // Assert
+        assertThat(result.getId()).isEqualTo(SENSOR_ID);
+        assertThat(result.getFirmwareVersion()).isNull();
+        assertThat(result.getConfiguration()).isNull();
+        assertThat(result.getStatus()).isEqualTo("Unknown");
+        assertThat(result.getConfiguration()).isNull();
     }
 
     private String sensorInformationFor(Long id) {

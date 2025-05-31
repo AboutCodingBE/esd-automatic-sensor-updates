@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -30,17 +31,23 @@ public class SensorInformationClient {
         headers.set("x-auth-id", properties.authKey());
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-        ResponseEntity<SensorInformationResponse> apiResponse = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                requestEntity,
-                SensorInformationResponse.class
-        );
-        if (apiResponse.getBody() != null) {
-            SensorInformationResponse response = apiResponse.getBody();
-            return response.toSensor();
-        } else {
-            log.warn("Received empty response body for sensor ID: {}", sensorId);
+        try {
+            ResponseEntity<SensorInformationResponse> apiResponse = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    SensorInformationResponse.class
+            );
+            if (apiResponse.getBody() != null) {
+                SensorInformationResponse response = apiResponse.getBody();
+                return response.toSensor();
+            } else {
+                log.warn("Received empty response body for sensor ID: {}", sensorId);
+                return createDefaultSensor(sensorId);
+            }
+        }
+        catch(HttpClientErrorException | HttpServerErrorException exception) {
+            log.error("Request for more information failed for sensor with id {}", sensorId, exception);
             return createDefaultSensor(sensorId);
         }
     }
