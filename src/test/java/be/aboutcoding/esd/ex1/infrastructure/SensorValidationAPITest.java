@@ -39,8 +39,8 @@ class SensorValidationAPITest {
         var file = aMockFile(csvContent);
 
         var validatedSensors = Arrays.asList(
-                aSensorWithStatus("Ready"),
-                aSensorWithStatus("updating_firmware")
+                aSensorWithStatus(323445678L, "Ready"),
+                aSensorWithStatus(323445680L, "updating_firmware")
         );
 
         when(validationProcess.validateSensors(any())).thenReturn(validatedSensors);
@@ -49,7 +49,7 @@ class SensorValidationAPITest {
         mockMvc.perform(multipart("/api/sensors/validate").file(file))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("323445678"))
-                .andExpect(jsonPath("$[0].status").value("ready"))
+                .andExpect(jsonPath("$[0].status").value("Ready"))
                 .andExpect(jsonPath("$[1].id").value("323445680"))
                 .andExpect(jsonPath("$[1].status").value("updating_firmware"));
     }
@@ -81,8 +81,8 @@ class SensorValidationAPITest {
         );
     }
 
-    private TS50X aSensorWithStatus(String status){
-        var sensor = new TS50X(323445678L, "60.1.12Rev1", "config123.cfg");
+    private TS50X aSensorWithStatus(Long id, String status){
+        var sensor = new TS50X(id, "60.1.12Rev1", "config123.cfg");
         sensor.setStatus(status);
         return sensor;
     }

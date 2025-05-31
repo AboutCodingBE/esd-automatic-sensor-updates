@@ -147,7 +147,7 @@ public class SensorValidationProcessTest {
         // Assert
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getId()).isEqualTo(sensor.getId());
-        assertThat(result.get(0).getStatus()).isEqualTo("firmware_unknown");
+        assertThat(result.get(0).getStatus()).isEqualTo("Unknown");
 
         verify(sensorInformationClient).getSensorInformation(sensor.getId());
         verifyNoInteractions(taskClient);

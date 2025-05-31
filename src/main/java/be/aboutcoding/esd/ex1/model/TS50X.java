@@ -61,7 +61,7 @@ public class TS50X {
     }
 
     public void setStatus(String status) {
-        if(this.status != null && !this.status.equals(UNKNOWN_STATUS))
+        if(this.status == null || !this.status.equals(UNKNOWN_STATUS))
             this.status = status;
     }
 
