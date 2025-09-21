@@ -59,10 +59,7 @@ public class TS50X {
     private boolean canParseFirmwareVersion(String firmwareVersion) {
         Matcher matcher = FIRMWARE_VERSION_PATTERN.matcher(firmwareVersion);
 
-        if (!matcher.matches()) {
-            return false;
-        }
-        return true;
+        return matcher.matches();
     }
 
     public boolean shouldValidateSensor() {
