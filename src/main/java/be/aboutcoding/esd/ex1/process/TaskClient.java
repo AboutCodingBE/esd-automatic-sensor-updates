@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class TaskClient {
+class TaskClient {
 
     public static final String TASK_URI = "/tasks";
 

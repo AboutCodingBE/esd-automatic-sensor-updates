@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
-public class SensorInformationClient {
+class SensorInformationClient {
     private final RestTemplate restTemplate;
     private final ApiProperties properties;
 

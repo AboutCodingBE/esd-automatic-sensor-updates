@@ -1,8 +1,7 @@
-package be.aboutcoding.esd.ex1;
+package be.aboutcoding.esd.ex1.process;
 
 import be.aboutcoding.esd.ex1.infrastructure.Task;
 import be.aboutcoding.esd.ex1.model.TS50X;
-import be.aboutcoding.esd.ex1.process.TaskClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
